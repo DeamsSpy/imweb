@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>전지점 현황 및 담당자 리스트</title>
+
+  <style>
+    /* 카카오톡 색상 변수 정의 */
+    :root {
+      --kakao-yellow: #FEE500;
+      --kakao-black: #000000;
+      --kakao-gray: #666666;
+    }
+    /* 메인 컨테이너 스타일 */
+    .container {
+      width: 97%; /* 전체 너비의 97% 사용 */
+      height: 100%;
+      max-width: 100%; /* 최대 너비 제한 */
+      margin: 0 auto; /* 가운데 정렬 */
+      padding: 10px; /* 내부 여백 */
+      border-radius: 12px; /* 모서리 둥글게 */
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4); /* 그림자 효과 */
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif; /* 시스템 폰트 사용 */
+    }
+
+    /* 연도/월 선택 컨테이너 스타일 */
+    .select-container {
+      display: flex; /* 플렉스박스 레이아웃 */
+      margin: 0 auto;
+      padding: 0;
+      gap: 10px; /* 요소 간 간격 */
+      margin-bottom: 10px; /* 하단 여백 */
+      position: sticky; /* 스크롤 시 상단 고정 */
+      top: 0; /* 상단에서 0px 위치 */
+      background: white; /* 배경색 */
+      z-index: 10; /* 다른 요소 위에 표시 */
+    }
+      /* 전지점현황,담당자리스트 컨테이너 */
+    .result-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 10px;
+      background-color: #FFFFFF;
+      color: #333D4B;
+      border-radius: 12px;
+      padding: 15px;      
+      font-family: "Pretendard", sans-serif;
+      border: 3px solid #EAEDEF;
+      font-weight: bold;
+      line-height: 1.5;
+    }
+    /* 모바일 화면용 스타일 (768px 이하) */
+    /* border: 3px solid #EAEDEF; border-radius: 12px; */
+    @media screen and (max-width: 768px) {
+      /* 화면 전체 컨테이너 */
+      .container {
+        width: 97%;
+        margin: 0 auto;
+        padding: 5px; /* 내부 여백 추가 */
+        border-radius: 12px;
+        height: calc(100vh - 30px);
+      }
+      /* iframe 스타일 */
+      iframe {
+        width: 100%;
+        height: calc(100vh - 60px); /* 하단 잘림 방지를 위해 줄임 */
+        transform: scale(1.0);
+        transform-origin: top center;
+        margin: 0 auto;
+        border-radius: 12px;
+      }
+
+      .mobile-picker-container {
+        display: none; /* 모바일 피커 숨김 */
+      }
+
+      .toggle-container {
+        justify-content: flex-end; /* 좌측 정렬 */
+      }
+
+      .toggle-button {
+        padding: 8px 16px; /* 내부 여백 축소 */
+        font-size: 12px; /* 글자 크기 축소 */
+      }
+
+      /* 모바일용 데이터프레임 컨테이너 */
+      .dataFrame-container {
+        padding: 5px; /* 내부 여백 */
+        width: 195%; /* 전체 너비 사용 */
+        height: 100%;
+        transform: scale(0.5); /* 50% 크기로 축소 */
+        transform-origin: top left; /* 변형 기준점을 좌상단으로 설정 */
+        margin: 0; /* 외부 여백 */
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4); /* 그림자 효과 */
+        border-radius: 12px;
+      }
+    }
+
+    /* PC 화면용 스타일 (769px 이상) */
+    @media screen and (min-width: 769px) {
+      .mobile-picker-container {
+        display: none; /* 모바일 피커 숨김 */
+      }
+    }
+
+    /* 셀렉트 박스 기본 스타일 */
+    select {
+      flex-grow: 1; /* 남은 공간 모두 사용 */
+      padding: 12px 16px; /* 내부 여백 */
+      border: 1px solid #EBEBEB; /* 테두리 */
+      border-radius: 8px; /* 모서리 둥글게 */
+      background-color: #FFFFFF; /* 배경색 */
+      font-size: 16px; /* 글자 크기 */
+      font-weight: 500; /* 글자 굵기 */
+      cursor: pointer; /* 커서 모양 */
+      transition: none; /* 전환 효과 없음 */
+    }
+
+    /* 셀렉트 박스 호버 효과 */
+    select:hover {
+      background-color: #F8F8F8; /* 배경색 변경 */
+    }
+
+    /* 셀렉트 박스 포커스 효과(연도,월) */
+    select:focus {
+      outline: none; /* 기본 아웃라인 제거 */
+      border-color: var(--kakao-yellow); /* 테두리 색상 변경 */
+      box-shadow: 0 0 0 3px rgba(254, 229, 0, 0.3); /* 그림자 효과 */
+    }
+
+    /* 모바일 iOS 스타일 피커 컨테이너 */
+    .mobile-picker-container {
+      position: fixed; /* 화면에 고정 */
+      bottom: 0; /* 하단에 위치 */
+      left: 0; /* 좌측 정렬 */
+      right: 0; /* 우측 정렬 */
+      background: #fff; /* 배경색 */
+      border-top-left-radius: 16px; /* 상단 좌측 모서리 둥글게 */
+      border-top-right-radius: 16px; /* 상단 우측 모서리 둥글게 */
+      box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
+      z-index: 1000; /* 최상위 레이어 */
+    }
+
+    /* 피커 헤더 스타일 */
+    .picker-header {
+      display: flex; /* 플렉스박스 레이아웃 */
+      justify-content: space-between; /* 요소 간 간격 균등 분배 */
+      padding: 16px; /* 내부 여백 */
+      border-bottom: 1px solid #EBEBEB; /* 하단 테두리 */
+    }
+
+    /* 피커 버튼 공통 스타일 */
+    .picker-cancel, .picker-done {
+      font-weight: 500; /* 글자 굵기 */
+      border: none; /* 테두리 제거 */
+      background: #F5F5F7; /* 배경색 */
+      color: #888888; /* 글자 색상 */
+      padding: 8px 16px; /* 내부 여백 */
+      cursor: pointer; /* 커서 모양 */
+      border-radius: 8px; /* 모서리 둥글게 */
+      transition: none; /* 전환 효과 없음 */
+    }
+
+    /* 피커 완료 버튼 활성화 상태 */
+    .picker-done.active {
+      background: #FFFFFF; /* 배경색 변경 */
+      color: #222222; /* 글자 색상 변경 */
+    }
+
+    /* 피커 취소 버튼 활성화 상태 */
+    .picker-cancel.active {
+      background: #FFFFFF; /* 배경색 변경 */
+      color: #222222; /* 글자 색상 변경 */
+    }
+
+    /* 결과 컨테이너 스타일 */
+    .result-container {
+      display: flex; /* 플렉스박스 레이아웃 */
+      justify-content: flex-start; /* 좌측 정렬 */
+      align-items: center; /* 수직 중앙 정렬 */
+      margin-bottom: 20px; /* 하단 여백 */
+      cursor: pointer; /* 커서 모양 */
+      background-color: #FFFFFF; /* 배경색 */
+      color: #333D4B; /* 글자 색상 */
+      border-radius: 12px; /* 모서리 둥글게 */
+      padding: 16px; /* 내부 여백 */
+      margin: 10px 0; /* 상하 여백 */
+      font-family: "Pretendard", sans-serif; /* 폰트 */
+      border: 1px solid #EAEDEF; /* 테두리 */
+      font-weight: bold; /* 글자 굵기 */
+      line-height: 1.5; /* 줄 간격 */
+    }
+
+    /* 데이터프레임 컨테이너 스타일 */
+    .dataFrame-container {
+      transition: opacity 0.5s, transform 0.5s; /* 투명도와 변형 전환 효과 */
+      overflow: hidden; /* 넘치는 내용 숨김 */	  
+    }
+
+    /* iframe 스타일 */
+    iframe {
+      display: block;   /* flex 제거 (불필요) */
+      width: 100%;
+      max-width: 1230px;
+      margin: 5px auto;
+      border: 3px solid #EAEDEF;
+      border-radius: 12px;
+      transform: scale(1.0);
+      transform-origin: top center;
+      /* 높이 조절 */
+      height: calc(100vh - 160px); /* 상단 요소 공간 고려 */
+    }
+
+    /* 토글 버튼 기본 스타일 */
+    .toggle-button {
+      border: none; /* 테두리 제거 */
+      background: #F5F5F7; /* 배경색 */
+      color: #888888; /* 글자 색상 */
+      padding: 10px 20px; /* 내부 여백 */
+      cursor: pointer; /* 커서 모양 */
+      border-radius: 8px; /* 모서리 둥글게 */
+      transition: background 0.3s, color 0.3s; /* 배경색과 글자색 전환 효과 */
+      margin-right: 10px; /* 우측 여백 */
+    }
+
+    /* 토글 버튼 활성화 상태 */
+    .toggle-button.active {
+      background: var(--kakao-yellow); /* 배경색 변경 */
+      color: #222222; /* 글자 색상 변경 */
+    }
+
+    /* 토글 버튼 컨테이너 스타일 */
+    .toggle-container {
+      display: flex; /* 플렉스박스 레이아웃 */
+      justify-content: center; /* 수평 중앙 정렬 */
+      align-items: center; /* 수직 중앙 정렬 */
+      width: 100%; /* 전체 너비 사용 */
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="select-container">
+      <select id="yearSelect"></select>
+      <select id="monthSelect"></select>
+    </div>
+
+    <div class="result-container">
+      <div class="toggle-container">
+        <button class="toggle-button active" id="resultButton">전지점 현황</button>
+        <button class="toggle-button" id="listButton">담당자 리스트</button>
+      </div>
+    </div>
+
+    <div class="dataFrame-container" id="dataFrameContainer">
+      <iframe id="dataFrame"></iframe>
+    </div>
+
+    <!-- 모바일 iOS 스타일 피커 -->
+    <div class="mobile-picker-container" id="mobilePicker">
+      <div class="picker-header"@>
+        <button class="picker-cancel">취소</button>
+        <button class="picker-done">완료</button>
+      </div>
+      <div class="picker-content"></div>
+    </div>
+  </div>
+
+  <script>
+    const yearSelect = document.getElementById('yearSelect');
+    const monthSelect = document.getElementById('monthSelect');
+    const dataFrame = document.getElementById('dataFrame');
+    const dataFrameContainer = document.getElementById('dataFrameContainer');
+    const resultButton = document.getElementById('resultButton');
+    const listButton = document.getElementById('listButton');
+
+    // 지난 달(인센티브 현황)
+    const monthlyLinks = {
+      "2023-11": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNQn_B_lk_PiYKEn5WCZ2kA7AALZ7Ouw0bPAL-UW0TrSxDLx5-zdXhQQJ5rxnPfiHeO1tA43ZEjnMV/pubhtml?widget=true&amp;headers=false",
+      "2023-12": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTeZ8jxr4RtRSZMj4YzXlwryXJENxpGOaok7IkoLNxt75uNSFm8bQK_tM6kKPn8EykrW2uD5TO3riOm/pubhtml?widget=true&amp;headers=false",
+      "2024-01": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQFiWu8c_1vmp8IYT23v9TK9XcCi7DKLSbwKrtO2PHEngD9CksrOYsG7CBmWRwNui07n2RBPCVv31z7/pubhtml?widget=true&amp;headers=false",
+      "2024-02": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRtkfx7_fASvJvfL_Si3ODhpJIvoLm5ckTNDVg6ffepGkY7UQ1DtZdcYtFgWyojCuT1TXc43cVlQPBN/pubhtml?widget=true&amp;headers=false",
+      "2024-03": "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8dyBbA_JVZ34mc6kvjaCvIDfrNQHVmuCfN0RKSQPcz3BHJWXMkEG3gjvIq9CMTMRzum-PH3cSpCCo/pubhtml?widget=true&amp;headers=false",
+      "2024-04": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ0WcbPejQcndaKdM33432nzOjyMoQgMPBistLrZJepBIpR9hKZNRXwwbTgLvCgPlBXnK5UI6rxF069/pubhtml?widget=true&amp;headers=false",
+      "2024-05": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRpsWP3TVevEKXvd9Yk2YOgkmOAH1JMkiLWLTw41CDySeZOUxOG9dmDKmnT76_OIhuWG3wCnGa5wrDc/pubhtml?widget=true&amp;headers=false",
+      "2024-06": "https://docs.google.com/spreadsheets/d/e/2PACX-1vR8HmX09f3bj2NMQR1k9WMKAXc2KQcoLMWqDts1yh9RjbOsJg4BctQRvhO9_4DtA1wa-BeZ2CaCKRwR/pubhtml?widget=true&amp;headers=false",
+      "2024-07": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRkaMfWCIJaSEgDc8LyWmXJWeYtY5gFNdm56gs9pNLXccwOSfra0pCH0rwHQJgPFZDaqEeZbmNrlvgM/pubhtml?widget=true&amp;headers=false",
+      "2024-08": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQH8pCP8F7mG7eDoFqkArPiXG9daFwchRTEAOs5oMLzBgST9P32J1FOYI-17dE5SXbyPOjIYdUkrnqd/pubhtml?widget=true&amp;headers=false",
+      "2024-09": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ9l8OMZr3B8Zaa-qwAQVMyd4T2_c909BMOsOBu_mTHX1saxwt_5dYVGuUGf5MT9_s-7O3a__EmtMV4/pubhtml?widget=true&amp;headers=false",
+      "2024-10": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKzdYBHhaK20RXCAk9J_o2hjSd4aVx20Ru9GUqNMX0A7iCbS7gRkRtQCiHWi-uQv6ji9K_E3kbPIjc/pubhtml?widget=true&amp;headers=false",
+      "2024-11": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTmL9T1aGcJ8-0lXX3BkyHcbT6IWCWRd69t_hndQtnu6UifTaCF-c6lCyUuAQCaEkSO6jJhAritX98-/pubhtml?widget=true&amp;headers=false",
+      "2024-12": "https://docs.google.com/spreadsheets/d/e/2PACX-1vR4SqEZqiZYm18FCd2hBJz0A7eWDbANhk9zZmIB3Xtj5iKavgulnn3DlaJDNQ-L64fYEOOaKcvVaK3o/pubhtml?widget=true&amp;headers=false",
+      "2025-01": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQqbo988c5qo14CWj026HOP2DhijUKa_ziNhQxVh96M7m5pwVoUDo_qr3F5CGi2Z1szL3eaSWYsmR6C/pubhtml?widget=true&amp;headers=false",
+      "2025-02": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTrT0gLp2oQL0v51tr6q5bS6MGpLMjzKtRYSSc9K6cbITsWWUTLtmIkTGJhPrDWZl844moqdnGPSjiB/pubhtml?widget=true&amp;headers=false",
+      "2025-03": "https://docs.google.com/spreadsheets/d/e/2PACX-1vT_2xxoxTgNJBXkXNfrOtotOHGpFtDxFRkSA4gaL_OU06AUG-GlOiZVNZsZ8ish-Qb-Mqvox61FpFlN/pubhtml?widget=true&amp;headers=false",
+      "2025-04": "https://docs.google.com/spreadsheets/d/e/2PACX-1vT69dPrzPbHjZZ2mCJhlbTgTfZaNvw9eqTx-Wv0ytE7wGym3RSx4MjY15qaPS7EZdMpOeT2RZOCP_f4/pubhtml?widget=true&amp;headers=false",
+      "2025-05": "https://docs.google.com/spreadsheets/d/e/2PACX-1vS9pTw9MEjPRPiNmraSGVzeOCwcralP6Sb5hIR5ekT75dmDY3qLHdVaxctdokvDkYZcMFFgM0L5Ojg_/pubhtml?widget=true&amp;headers=false",
+      "2025-06": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSNQTW2MvmCMNRh0RlOWqCC63pjDhyF5ouodIwjVV3Lv8qGVkXanoqJeyHE77SEi-gJzYnyE6J5-6JZ/pubhtml?widget=true&amp;headers=false",
+    };
+    // 지난 달(신규/첫재등록 데이터)
+    const monthlyListLinks = {
+      "2023-11": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNQn_B_lk_PiYKEn5WCZ2kA7AALZ7Ouw0bPAL-UW0TrSxDLx5-zdXhQQJ5rxnPfiHeO1tA43ZEjnMV/pubhtml?widget=true&amp;headers=false",
+      "2023-12": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTeZ8jxr4RtRSZMj4YzXlwryXJENxpGOaok7IkoLNxt75uNSFm8bQK_tM6kKPn8EykrW2uD5TO3riOm/pubhtml?widget=true&amp;headers=false",
+      "2024-01": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTqashaYOVtvxxoW4VUcTDBBusFuJt5MQEoBDwKDtNY4nB0aMhidTuPCe0DQLfiHnGpC6yKOasAK5et/pubhtml?widget=true&amp;headers=false",
+      "2024-02": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRdLnMAQ3SVR28Lw1BijmxRAIWklHI0CqaojR-fF8NTf1s11Hx6jVv78Fu5pToyV4Eh9o_sf8ZagCfl/pubhtml?widget=true&amp;headers=false",
+      "2024-03": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNLwkxx36Naa5LIGBb_dxgAPw7eJ1vE0ov3uBM_LAExB2LebQXN8IuW0tRaXTr2Y5dt7g-fpwlPxzb/pubhtml?widget=true&amp;headers=false",
+      "2024-04": "https://docs.google.com/spreadsheets/d/e/2PACX-1vT9RmIw4X58MJZ7LJi7lNLbYauVy4USxKR5hDcBlSRC3PPWk6WQpO7ZNjbRbHagc1Mgv30MufeQniuE/pubhtml?widget=true&amp;headers=false",
+      "2024-05": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSaLwv0Bm31IyeIlcTvw6Merbz8X4lkxpZZQZKS3nDjocKt7up7QfgpwZ70d1TSAI9UfHr80fNaOVcp/pubhtml?widget=true&amp;headers=false",
+      "2024-06": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVDkrTCuCKVDfX1mzDMGvskknh-bgec6B5nxy7mERIReNI2XEPt3CfydhebzNvRPNX3jkpy8Slrwy9/pubhtml?widget=true&amp;headers=false",
+      "2024-07": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSRWKu1Pg5rPzTl-5CVGbfUSbBXp3M3omIoBU1pEAZlI8rDOHBKqgQV6DAAnI_qWlOiKYRkSKrQ438o/pubhtml?widget=true&amp;headers=false",
+      "2024-08": "https://docs.google.com/spreadsheets/d/e/2PACX-1vT0xVObazquQyKhpWKTEnM8t8SyYho-c0EOJp_41A_U9-qN_n0mOhfdQX_4UxhZyXytTkn7KGSjNilc/pubhtml?widget=true&amp;headers=false",
+      "2024-09": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTje6Qf_tN9-dy-PliaACnC0NxDVBmy_1XfvBSlpjyCE1Jd_byN5X63de5dlMV82eaIvZ9tZF8HebTB/pubhtml?widget=true&amp;headers=false",
+      "2024-10": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSxoGKHP9fpx-UuWEQYA4ULWXu5S7REKPqjpYrfFbu90CyPPOZ-4kAZMIpiam0VhxCUYYLvIo-MI8yW/pubhtml?widget=true&amp;headers=false",
+      "2024-11": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSte6F3udcfpgUC5uA06Lc_g_kmYUSw64UbRBHXEF4S3Bm9po1OHEqr8xfXX66NhXMz-yVaXTjVt0nB/pubhtml?widget=true&amp;headers=false",
+      "2024-12": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNkKwrGrydOT0c1Opm8T8XhwhVLPpc2f5cLG9b4yjVFv-5BlgMjQviFFG38PUeLCYXCja6TlMjz45m/pubhtml?widget=true&amp;headers=false",
+      "2025-01": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRwj4r-yY3HUpZTpe8uRh4hRTSejR7kf3Jp5ORqhLqqJGclChV42LI8o5o_-oEI_IDuescTCsd4rbn3/pubhtml?widget=true&amp;headers=false",
+      "2025-02": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZpCOUSntOdYEWK0Uf0DnVtd7V03FQa4dqmX9GSdMqbs3YizxGsGvyfpRP-6nN9kuMVcsODTWMK6ri/pubhtml?widget=true&amp;headers=false",
+      "2025-03": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRw5QFm9NDjnz2Qsa55gc7onS7hUJYogVsix1OOz5MLf5hzWCtYrkUQyQrKUok4KifdaV6oUxMyT-NT/pubhtml?widget=true&amp;headers=false",
+      "2025-04": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSdUPGcQ6umFsboaFmCENwXy5kDSxJU6J7jARdE3xBgd6TyKE_dyLWFlV7xja4FdR_cAd6ZHesk41iH/pubhtml?widget=true&amp;headers=false",
+      "2025-05": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQIvOJHkCD0iYxxazgN97Y2rv5RnMkomvifW_jVJlL32126Jozj-TYyLszNHCV9fLupucOPrhymw6on/pubhtml?widget=true&amp;headers=false",
+      "2025-06": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTT6p9vAd8NPOoeY1ly-OXKxnF5IPqxuDXSYbjgvEVBz3uXy_wuQgqaM3ElHvw4mZ84EQB84aVAnlH1/pubhtml?widget=true&amp;headers=false",
+    };
+
+    let isListView = false;
+
+    // 현재 연도와 현재 달 계산
+    const now = new Date();
+    const defaultYear = now.getFullYear();
+    const defaultMonth = String(now.getMonth() + 1).padStart(2, '0');
+
+    // 연도 & 월 옵션 설정 (2023~2025)
+    for (let i = 2023; i <= 2025; i++) {
+      const option = document.createElement('option');
+      option.value = i;
+      option.textContent = `${i}년`;
+      yearSelect.appendChild(option);
+    }
+
+    for (let i = 1; i <= 12; i++) {
+      const option = document.createElement('option');
+      option.value = String(i).padStart(2, '0');
+      option.textContent = `${i}월`;
+      monthSelect.appendChild(option);
+    }
+
+    // 기본 선택값을 현재 달로 설정
+    yearSelect.value = defaultYear;
+    monthSelect.value = defaultMonth;
+
+    function updateFrameLink(year, month) {
+      const key = `${year}-${month}`;
+      if (isListView) {
+        dataFrame.src = monthlyListLinks[key] || '';
+      } else {
+        dataFrame.src = monthlyLinks[key] || '';
+      }
+      // Fade in/out effect
+      dataFrameContainer.style.opacity = 0;
+      setTimeout(() => {
+        dataFrameContainer.style.opacity = 1;
+      }, 500);
+    }
+
+    function loadCurrentMonthLink() {
+      updateFrameLink(defaultYear, defaultMonth);
+    }
+
+    // 연도/월 선택 이벤트
+    yearSelect.addEventListener('change', () => {
+      updateFrameLink(yearSelect.value, monthSelect.value);
+    });
+
+    monthSelect.addEventListener('change', () => {
+      updateFrameLink(yearSelect.value, monthSelect.value);
+    });
+
+    resultButton.addEventListener('click', () => {
+      isListView = false;
+      resultButton.classList.add('active');
+      listButton.classList.remove('active');
+      updateFrameLink(yearSelect.value, monthSelect.value);
+    });
+
+    listButton.addEventListener('click', () => {
+      isListView = true;
+      listButton.classList.add('active');
+      resultButton.classList.remove('active');
+      updateFrameLink(yearSelect.value, monthSelect.value);
+    });
+
+    // 반응형 높이 조절
+    function adjustFrameHeight() {
+      const vh = window.innerHeight;
+      dataFrame.style.height = `${vh - 120}px`;
+    }
+
+    window.addEventListener('resize', adjustFrameHeight);
+    adjustFrameHeight();
+    loadCurrentMonthLink();
+  </script>
+
+  <link rel="stylesheet" href="https://unpkg.com/picker.js/dist/picker.min.css">
+  <script src="https://unpkg.com/picker.js/dist/picker.min.js"></script>
+
+</body>
+</html>
