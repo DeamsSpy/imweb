@@ -13,31 +13,6 @@
     --kakao-gray: #666666;
   }
 
-  /* 로딩 스피너 스타일 */
-  .loader {
-    border: 8px solid #f3f3f3;
-    border-top: 8px solid var(--kakao-yellow);
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    animation: spin 1s linear infinite;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 9999;
-    display: none;
-  }
-
-  @keyframes spin {
-    0% { transform: translate(-50%, -50%) rotate(0deg); }
-    100% { transform: translate(-50%, -50%) rotate(360deg); }
-  }
-
-  .iframe-container.loading {
-    position: relative;
-  }
-
   .grid-container {
     display: flex; /* 플렉스 컨테이너로 설정 */
     flex-wrap: wrap; /* 아이템이 넘칠 경우 줄바꿈 */
@@ -100,45 +75,17 @@
 <body>
   <div class="grid-container">
     <div class="iframe-container">
-      <div class="loader" id="loader1"></div>
       <iframe seamless frameborder="0" scrolling="no" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQVgqS2NQZ6HBXexX2zRBgn8KqbN4uFzwdwqI3xi12Z0uXvXHG_RlR-cizEbtHOPaysG20NCvexJrdD/pubchart?oid=1403897787&amp;format=interactive"></iframe>
     </div>
     <div class="iframe-container">
-      <div class="loader" id="loader2"></div>
       <iframe seamless frameborder="0" scrolling="no" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQVgqS2NQZ6HBXexX2zRBgn8KqbN4uFzwdwqI3xi12Z0uXvXHG_RlR-cizEbtHOPaysG20NCvexJrdD/pubchart?oid=1680872178&amp;format=interactive"></iframe>
     </div>
     <div class="iframe-container">
-      <div class="loader" id="loader3"></div>
       <iframe seamless frameborder="0" scrolling="no" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQVgqS2NQZ6HBXexX2zRBgn8KqbN4uFzwdwqI3xi12Z0uXvXHG_RlR-cizEbtHOPaysG20NCvexJrdD/pubchart?oid=605938016&amp;format=interactive"></iframe>
     </div>
     <div class="iframe-container">
-      <div class="loader" id="loader4"></div>
       <iframe seamless frameborder="0" scrolling="no" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQVgqS2NQZ6HBXexX2zRBgn8KqbN4uFzwdwqI3xi12Z0uXvXHG_RlR-cizEbtHOPaysG20NCvexJrdD/pubchart?oid=843867071&amp;format=interactive"></iframe>
     </div>
   </div>
-
-  <script>
-    // 모든 iframe과 로더 요소 가져오기
-    const iframes = document.querySelectorAll('.iframe-container iframe');
-    const loaders = document.querySelectorAll('.loader');
-    const containers = document.querySelectorAll('.iframe-container');
-
-    // 각 iframe에 로딩 이벤트 리스너 추가
-    iframes.forEach((iframe, index) => {
-      // 로딩 시작 시
-      iframe.onloadstart = function() {
-        loaders[index].style.display = 'block';
-        containers[index].classList.add('loading');
-        iframe.style.opacity = 0;
-      };
-
-      // 로딩 완료 시
-      iframe.onload = function() {
-        loaders[index].style.display = 'none';
-        containers[index].classList.remove('loading');
-        iframe.style.opacity = 1;
-      };
-    });
-  </script>
 </body>
 </html>
