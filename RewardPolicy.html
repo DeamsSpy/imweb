@@ -306,7 +306,6 @@
     const incentPolicyButton = document.getElementById('listButton');
     const dataFrame = document.getElementById('dataFrame');
     const dataFrameContainer = document.getElementById('dataFrameContainer');
-    const loader = document.getElementById('loader');
 
     // 링크 정의
     const incentHistoryUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ2mbcm-8FrS2RSU1W_c3jhW87zW8YyGHTbWuj2UxkJwEORNIlDxUq98ArSmZ7P6qrk8jBYD89ojnV_/pubhtml?widget=true&headers=false";
@@ -314,78 +313,34 @@
 
     // "인센 내역" 버튼 클릭 이벤트
     incentHistoryButton.addEventListener('click', () => {
-      // 이미 활성화 상태면 아무것도 안함
       if (incentHistoryButton.classList.contains('active')) {
         return;
       }
-
-      // 로딩 스피너 표시
-      loader.style.display = 'block';
-      dataFrameContainer.classList.add('loading');
-      dataFrame.style.opacity = 0;
-
-      setTimeout(() => {
-        dataFrame.src = incentHistoryUrl;
-        dataFrame.onload = function() {
-          loader.style.display = 'none';
-          dataFrameContainer.classList.remove('loading');
-          dataFrame.style.opacity = 1;
-        };
-        incentHistoryButton.classList.add('active');
-        incentPolicyButton.classList.remove('active');
-      }, 300);
+      dataFrame.src = incentHistoryUrl;
+      incentHistoryButton.classList.add('active');
+      incentPolicyButton.classList.remove('active');
     });
 
     // "인센 정책" 버튼 클릭 이벤트
     incentPolicyButton.addEventListener('click', () => {
-      // 이미 활성화 상태면 아무것도 안함
       if (incentPolicyButton.classList.contains('active')) {
         return;
       }
-
-      // 로딩 스피너 표시
-      loader.style.display = 'block';
-      dataFrameContainer.classList.add('loading');
-      dataFrame.style.opacity = 0;
-
-      setTimeout(() => {
-        if (incentPolicyUrl) { // URL이 있을 경우에만 로드
+      if (incentPolicyUrl) {
           dataFrame.src = incentPolicyUrl;
-          dataFrame.onload = function() {
-            loader.style.display = 'none';
-            dataFrameContainer.classList.remove('loading');
-            dataFrame.style.opacity = 1;
-          };
-        } else {
-          // URL이 없으면 iframe 비우고 알림 표시
+      } else {
           dataFrame.src = 'about:blank';
           alert("인센 정책 URL이 설정되지 않았습니다.");
-          loader.style.display = 'none';
-          dataFrameContainer.classList.remove('loading');
-          dataFrame.style.opacity = 1;
-        }
-        incentPolicyButton.classList.add('active');
-        incentHistoryButton.classList.remove('active');
-      }, 300);
+      }
+      incentPolicyButton.classList.add('active');
+      incentHistoryButton.classList.remove('active');
     });
 
     // 초기 로드: "인센 내역" 활성화 및 로드
     function initializeView() {
-      // 로딩 스피너 표시
-      loader.style.display = 'block';
-      dataFrameContainer.classList.add('loading');
-      dataFrame.style.opacity = 0;
-
-      setTimeout(() => {
-        dataFrame.src = incentHistoryUrl;
-        dataFrame.onload = function() {
-          loader.style.display = 'none';
-          dataFrameContainer.classList.remove('loading');
-          dataFrame.style.opacity = 1;
-        };
-        incentHistoryButton.classList.add('active');
-        incentPolicyButton.classList.remove('active');
-      }, 300);
+      dataFrame.src = incentHistoryUrl;
+      incentHistoryButton.classList.add('active');
+      incentPolicyButton.classList.remove('active');
     }
 
     // 페이지 로드 완료 후 초기화 함수 실행
