@@ -12,7 +12,7 @@
       --kakao-black: #000000;
       --kakao-gray: #666666;
     }
-
+ 
     /* 기본 HTML, Body 스타일 초기화 */
     html, body {
       margin: 0;
@@ -63,7 +63,7 @@
         border-radius: 8px;
         padding: 4px;
         flex-wrap: wrap; /* 모바일에서 버튼 줄 바꿈 허용 */
-        gap: 4px; /* 버튼 사이 간격 (wrap 시 사용) */
+        gap: 10px; /* 버튼 사이 간격 (wrap 시 사용) */
       }
 
       /* 토글 버튼 기본 스타일 */
@@ -218,6 +218,31 @@
       opacity: 0;
     }
 
+    /* 로딩 스피너 스타일 */
+    .loader {
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid var(--kakao-yellow);
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+      display: none;
+    }
+
+    @keyframes spin {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    .dataFrame-container.loading {
+      position: relative;
+    }
+
     @media screen and (max-width: 768px) {
       .mobile-message {
         display: block;
@@ -238,6 +263,7 @@
     </div>
 
     <div class="dataFrame-container" id="dataFrameContainer">
+      <div class="loader" id="loader"></div>
       <div id="branchDataView">
           <iframe id="branchDataFrame" frameborder="0"></iframe>
       </div>
@@ -323,6 +349,8 @@
       return urls[branch][currentMonth] || urls[branch]['2025-04']; // 기본값으로 3월 데이터 사용
     }
 
+    const loader = document.getElementById('loader');
+
     // 버튼 클릭 시 iframe 소스 변경 및 활성 상태 업데이트 함수
     function handleButtonClick(clickedButton, branch) {
       if (clickedButton.classList.contains('active')) return;
@@ -330,7 +358,19 @@
       buttons.forEach(button => button.classList.remove('active'));
       clickedButton.classList.add('active');
 
-      branchDataFrame.src = getCurrentUrl(branch);
+      // 로딩 스피너 표시
+      loader.style.display = 'block';
+      dataFrameContainer.classList.add('loading');
+      branchDataFrame.style.opacity = 0;
+
+      setTimeout(() => {
+        branchDataFrame.src = getCurrentUrl(branch);
+        branchDataFrame.onload = function() {
+          loader.style.display = 'none';
+          dataFrameContainer.classList.remove('loading');
+          branchDataFrame.style.opacity = 1;
+        };
+      }, 300);
     }
 
     // 각 버튼에 이벤트 리스너 추가
@@ -340,10 +380,23 @@
 
     // 초기 로드 상태 설정 함수
     function initializeView() {
+      // 로딩 스피너 표시
+      loader.style.display = 'block';
+      dataFrameContainer.classList.add('loading');
+      branchDataFrame.style.opacity = 0;
+
       sangmuButton.classList.add('active');
       sinchangButton.classList.remove('active');
       ochiButton.classList.remove('active');
-      branchDataFrame.src = getCurrentUrl('sangmu');
+
+      setTimeout(() => {
+        branchDataFrame.src = getCurrentUrl('sangmu');
+        branchDataFrame.onload = function() {
+          loader.style.display = 'none';
+          dataFrameContainer.classList.remove('loading');
+          branchDataFrame.style.opacity = 1;
+        };
+      }, 300);
     }
 
     // PC에서 메뉴 숨김을 위한 스크립트
