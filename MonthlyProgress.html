@@ -113,6 +113,9 @@
       height: auto; /* 높이는 내부 iframe에 의해 결정되도록 */
       display: flex; /* 내부 iframe 정렬을 위해 추가 */
       flex-direction: column; /* 세로 방향으로 */
+      width: 100%;
+      height: 100%;
+      position: relative;
     }
 
     /* iframe 스타일 (PC 기본) */
@@ -280,30 +283,6 @@
         display: none !important;
     }
 
-    /* 로딩 스피너 스타일 */
-    .loader {
-      border: 8px solid #f3f3f3;
-      border-top: 8px solid var(--kakao-yellow);
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      animation: spin 1s linear infinite;
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 9999;
-      display: none;
-    }
-
-    @keyframes spin {
-      0% { transform: translate(-50%, -50%) rotate(0deg); }
-      100% { transform: translate(-50%, -50%) rotate(360deg); }
-    }
-
-    .dataFrame-container.loading {
-      position: relative;
-    }
   </style>
 </head>
 <body>
@@ -322,7 +301,6 @@
     </div>
 
     <div class="dataFrame-container" id="dataFrameContainer">
-      <div class="loader" id="loader"></div>
       <iframe id="dataFrame" frameborder="0"></iframe>
     </div>
 
@@ -342,10 +320,7 @@
     const dataFrameContainer = document.getElementById('dataFrameContainer');
     const resultButton = document.getElementById('resultButton');
     const listButton = document.getElementById('listButton');
-    const loader = document.getElementById('loader');
-
     // --- 기존 링크 데이터는 동일 ---
-     // 지난 달(인센티브 현황)
      const monthlyLinks = {
       "2023-11": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNQn_B_lk_PiYKEn5WCZ2kA7AALZ7Ouw0bPAL-UW0TrSxDLx5-zdXhQQJ5rxnPfiHeO1tA43ZEjnMV/pubhtml?widget=true&amp;headers=false",
       "2023-12": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTeZ8jxr4RtRSZMj4YzXlwryXJENxpGOaok7IkoLNxt75uNSFm8bQK_tM6kKPn8EykrW2uD5TO3riOm/pubhtml?widget=true&amp;headers=false",
@@ -425,32 +400,15 @@
     function updateFrameLink(year, month) {
       const key = `${year}-${month}`;
       const url = isListView ? (monthlyListLinks[key] || '') : (monthlyLinks[key] || '');
-
-      // 로딩 스피너 표시
-      loader.style.display = 'block';
-      dataFrameContainer.classList.add('loading');
-      dataFrame.style.opacity = 0;
-
-      setTimeout(() => {
-        dataFrame.src = url;
-        dataFrame.onload = function() {
-          loader.style.display = 'none';
-          dataFrameContainer.classList.remove('loading');
+      dataFrame.src = url;
+      dataFrame.onload = function() {
           dataFrame.style.opacity = 1;
-        };
-      }, 300);
+      };
     }
 
     // 페이지 로드 시 현재 설정된 연/월 데이터 로드
     function loadInitialData() {
-      // 로딩 스피너 표시
-      loader.style.display = 'block';
-      dataFrameContainer.classList.add('loading');
-      dataFrame.style.opacity = 0;
-
-      setTimeout(() => {
-        updateFrameLink(yearSelect.value, monthSelect.value);
-      }, 300);
+      updateFrameLink(yearSelect.value, monthSelect.value);
     }
 
     // 연도/월 선택 이벤트
