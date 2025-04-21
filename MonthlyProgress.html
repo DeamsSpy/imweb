@@ -75,7 +75,7 @@
         border-radius: 8px;
         padding: 4px;
         flex-wrap: wrap; /* 모바일에서 버튼 줄 바꿈 허용 */
-        gap: 4px; /* 버튼 사이 간격 (wrap 시 사용) */
+        gap: 10px; /* 버튼 사이 간격 (wrap 시 사용) */
       }
 
       /* 토글 버튼 기본 스타일 */
@@ -274,6 +274,36 @@
       background: #FFFFFF; /* 배경색 변경 */
       color: #222222; /* 글자 색상 변경 */
     }
+
+    /* 숨김 처리용 클래스 (이제 사용되지 않지만, 혹시 모르니 유지) */
+    .hidden {
+        display: none !important;
+    }
+
+    /* 로딩 스피너 스타일 */
+    .loader {
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid var(--kakao-yellow);
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+      display: none;
+    }
+
+    @keyframes spin {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    .dataFrame-container.loading {
+      position: relative;
+    }
   </style>
 </head>
 <body>
@@ -292,7 +322,9 @@
     </div>
 
     <div class="dataFrame-container" id="dataFrameContainer">
-      <iframe id="dataFrame" frameborder="0"></iframe> </div>
+      <div class="loader" id="loader"></div>
+      <iframe id="dataFrame" frameborder="0"></iframe>
+    </div>
 
     <div class="mobile-picker-container" id="mobilePicker">
       <div class="picker-header">
@@ -310,6 +342,7 @@
     const dataFrameContainer = document.getElementById('dataFrameContainer');
     const resultButton = document.getElementById('resultButton');
     const listButton = document.getElementById('listButton');
+    const loader = document.getElementById('loader');
 
     // --- 기존 링크 데이터는 동일 ---
      // 지난 달(인센티브 현황)
@@ -393,20 +426,31 @@
       const key = `${year}-${month}`;
       const url = isListView ? (monthlyListLinks[key] || '') : (monthlyLinks[key] || '');
 
-      // Fade out 효과 시작
-      dataFrameContainer.style.opacity = 0;
+      // 로딩 스피너 표시
+      loader.style.display = 'block';
+      dataFrameContainer.classList.add('loading');
+      dataFrame.style.opacity = 0;
 
-      // 약간의 지연 후 iframe 소스 변경 및 fade in
       setTimeout(() => {
         dataFrame.src = url;
-        // iframe 로딩 완료를 기다리지 않고 바로 fade in 시작 (개선 가능 지점)
-         dataFrameContainer.style.opacity = 1;
-      }, 300); // 0.3초 지연 (CSS transition 시간과 맞추거나 조절)
+        dataFrame.onload = function() {
+          loader.style.display = 'none';
+          dataFrameContainer.classList.remove('loading');
+          dataFrame.style.opacity = 1;
+        };
+      }, 300);
     }
 
     // 페이지 로드 시 현재 설정된 연/월 데이터 로드
     function loadInitialData() {
+      // 로딩 스피너 표시
+      loader.style.display = 'block';
+      dataFrameContainer.classList.add('loading');
+      dataFrame.style.opacity = 0;
+
+      setTimeout(() => {
         updateFrameLink(yearSelect.value, monthSelect.value);
+      }, 300);
     }
 
     // 연도/월 선택 이벤트
