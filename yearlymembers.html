@@ -51,37 +51,6 @@
             font-weight: 600;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-
-        /* 로딩 스피너 스타일 */
-        .loader {
-            border: 8px solid #f3f3f3;
-            border-top: 8px solid var(--kakao-yellow);
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 9999;
-            display: none;
-        }
-
-        @keyframes spin {
-            0% { transform: translate(-50%, -50%) rotate(0deg); }
-            100% { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-
-        .dataFrame-container.loading {
-            position: relative;
-        }
-
-        .dataFrame-container {
-            width: 100%;
-            height: 100%;
-            position: relative;
-        }
     </style>
 </head>
 <body>
@@ -98,8 +67,7 @@
             <button class="toggle-button active" data-year="2025">2025년</button>
         </div>
     </div>
-    <div class="dataFrame-container" id="dataFrameContainer">
-        <div class="loader" id="loader"></div>
+    <div>
         <canvas id="memberChart" style="height: 600px;"></canvas>
     </div>
 
@@ -110,8 +78,6 @@
         const branchButtons = document.querySelectorAll('#branch-buttons .toggle-button');
         const yearButtons = document.querySelectorAll('#year-buttons .toggle-button');
         const chartCanvas = document.getElementById('memberChart');
-        const dataFrameContainer = document.getElementById('dataFrameContainer');
-        const loader = document.getElementById('loader');
         let memberChart;
         let allData = [];
 
@@ -304,11 +270,6 @@
                 .filter(btn => btn.classList.contains('active'))
                 .map(btn => parseInt(btn.dataset.year));
 
-            // 로딩 스피너 표시
-            loader.style.display = 'block';
-            dataFrameContainer.classList.add('loading');
-            chartCanvas.style.opacity = 0;
-
             Promise.all(initialYears.map(year =>
                 fetch(getDataUrl(year))
                     .then(res => res.text())
@@ -318,36 +279,17 @@
                 const { selectedBranches, selectedYears } = getSelectedFilters();
                 const filteredData = filterData(selectedBranches, selectedYears);
                 updateChart(filteredData);
-                // 로딩 스피너 숨김
-                loader.style.display = 'none';
-                dataFrameContainer.classList.remove('loading');
-                chartCanvas.style.opacity = 1;
             }).catch(error => {
                 console.error('데이터를 불러오는 데 실패했습니다:', error);
-                // 에러 발생 시에도 로딩 스피너 숨김
-                loader.style.display = 'none';
-                dataFrameContainer.classList.remove('loading');
-                chartCanvas.style.opacity = 1;
             });
         }
 
         branchButtons.forEach(button => {
             button.addEventListener('click', () => {
                 button.classList.toggle('active');
-                // 로딩 스피너 표시
-                loader.style.display = 'block';
-                dataFrameContainer.classList.add('loading');
-                chartCanvas.style.opacity = 0;
-
-                setTimeout(() => {
-                    const { selectedBranches, selectedYears } = getSelectedFilters();
-                    const filteredData = filterData(selectedBranches, selectedYears);
-                    updateChart(filteredData);
-                    // 로딩 스피너 숨김
-                    loader.style.display = 'none';
-                    dataFrameContainer.classList.remove('loading');
-                    chartCanvas.style.opacity = 1;
-                }, 300);
+                const { selectedBranches, selectedYears } = getSelectedFilters();
+                const filteredData = filterData(selectedBranches, selectedYears);
+                updateChart(filteredData);
             });
         });
 
