@@ -74,8 +74,35 @@
       flex: 1 1 calc(25% - 12px);
     }
 
+    /* ✅ 배송상품 확인 버튼 전용 스타일 */
+    #button7 {
+      border: none;
+      background: #F0F0F0;
+      color: #555555;
+      padding: 8px 16px;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: background 0.3s, color 0.3s;
+      font-size: 14px;
+      font-weight: 500;
+      flex-grow: 1;
+      flex-basis: auto;
+      text-align: center;
+      white-space: nowrap;
+      margin: 2px;
+      min-width: 100px;
+      flex: 1 1 calc(25% - 12px);
+    }
+
+    #button7.active {
+      background: #1F3EF5;
+      color: #FFFFFF;
+      font-weight: 600;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
     /* ✅ 활성화된 버튼 스타일 */
-    .toggle-button.active {
+    .toggle-button.active:not(#button7) {
       background: var(--kakao-yellow);
       color: #222222;
     }
