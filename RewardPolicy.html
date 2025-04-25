@@ -245,35 +245,6 @@
       color: #222222;
     }
 
-    /* 숨김 처리용 클래스 (이제 사용되지 않지만, 혹시 모르니 유지) */
-    .hidden {
-        display: none !important;
-    }
-
-    /* 로딩 스피너 스타일 */
-    .loader {
-      border: 8px solid #f3f3f3;
-      border-top: 8px solid var(--kakao-yellow);
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      animation: spin 1s linear infinite;
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 9999;
-      display: none;
-    }
-
-    @keyframes spin {
-      0% { transform: translate(-50%, -50%) rotate(0deg); }
-      100% { transform: translate(-50%, -50%) rotate(360deg); }
-    }
-
-    .dataFrame-container.loading {
-      position: relative;
-    }
   </style>
 </head>
 <body>
@@ -287,7 +258,6 @@
     </div>
 
     <div class="dataFrame-container" id="dataFrameContainer">
-      <div class="loader" id="loader"></div>
       <iframe id="dataFrame" frameborder="0"></iframe>
     </div>
 
