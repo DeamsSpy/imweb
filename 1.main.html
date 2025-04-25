@@ -6,17 +6,20 @@
   <title>통합 페이지</title>
 
   <style>
+    /* ✅ 공통 색상 변수 정의 */
     :root {
       --kakao-yellow: #FEE500;
       --kakao-black: #000000;
       --kakao-gray: #666666;
     }
 
+    /* ✅ iframe을 감싸는 컨테이너 (중앙 배치 및 최소 높이 유지) */
     .dataFrame-container {
       position: relative;
       min-height: 400px; /* iframe 로딩 전에도 컨테이너 크기를 유지 */
     }
 
+    /* ✅ 전체 페이지 컨테이너 (여백, 그림자 등 레이아웃 설정) */
     .container {
       width: 97%;
       max-width: 100%;
@@ -28,6 +31,7 @@
       font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif;
     }
 
+    /* ✅ 버튼 영역 감싸는 컨테이너 */
     .result-container {
       display: flex;
       justify-content: center;
@@ -43,6 +47,7 @@
       line-height: 1.5;
     }
 
+    /* ✅ iframe 스타일 설정 */
     iframe {
       width: 100%;
       transform: scale(1.0);
@@ -53,48 +58,52 @@
       border-radius: 12px;
     }
 
+    /* ✅ 버튼 기본 스타일 */
     .toggle-button {
       border: none;
       background: #F5F5F7;
       color: #888888;
-      padding: 10px 20px;
+      padding: 8px 12px;
       cursor: pointer;
       border-radius: 8px;
       transition: background 0.3s, color 0.3s;
-      margin: 5px;
+      margin: 2px;
       font-size: 14px;
       font-weight: 500;
-      min-width: 120px;
-      flex: 1 1 calc(33.333% - 20px);
+      min-width: 100px;
+      flex: 1 1 calc(25% - 12px);
     }
 
+    /* ✅ 활성화된 버튼 스타일 */
     .toggle-button.active {
       background: var(--kakao-yellow);
       color: #222222;
     }
 
+    /* ✅ 버튼들을 묶는 flex 박스 */
     .toggle-container {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       align-items: center;
       width: 100%;
-      gap: 5px;
+      gap: 2px;
       max-width: 1000px;
       margin: 0 auto;
     }
 
+    /* ✅ 모바일 대응 스타일 */
     @media screen and (max-width: 768px) {
       .toggle-button {
-        padding: 8px 12px;
-        min-width: 90px;
+        padding: 6px 10px;
+        min-width: 80px;
         font-size: 12px;
-        flex: 1 1 calc(33.333% - 10px);
+        flex: 1 1 calc(33.33% - 8px);
       }
       
       .toggle-container {
         flex-direction: row;
-        gap: 5px;        
+        gap: 2px;        
       }
       iframe {
         width: 110%;
@@ -116,9 +125,10 @@
         <button class="toggle-button active" id="button1">종합현황 차트</button>
         <button class="toggle-button" id="button2">월단위 달성현황</button>
         <button class="toggle-button" id="button3">인센내역 및 정책</button>
-        <button class="toggle-button" id="button4">연간 회원수 및 월간 등록률</button>
+        <button class="toggle-button" id="button4">연간 회원수</button>
         <button class="toggle-button" id="button5">이월대상자</button>
         <button class="toggle-button" id="button6">노쇼체크</button>
+        <button class="toggle-button" id="button7">배송상품 확인</button>
       </div>
     </div>
 
@@ -139,7 +149,8 @@
       button3: "https://soslyk.github.io/imweb/RewardPolicy",
       button4: "https://soslyk.github.io/imweb/ComparisonBranch",
       button5: "https://soslyk.github.io/imweb/CarryOver",
-      button6: "https://soslyk.github.io/imweb/Noshow"
+      button6: "https://soslyk.github.io/imweb/Noshow",
+      button7: "https://soslyk.github.io/imweb/checkdelivery"
     };
 
     // ✅ iframe에 URL을 업데이트하는 함수
