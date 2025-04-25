@@ -14,25 +14,7 @@
 
     .dataFrame-container {
       position: relative;
-    }
-    /* Loading spinner */
-    .loader {
-      border: 8px solid #f3f3f3;
-      border-top: 8px solid var(--kakao-yellow);
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      animation: spin 1s linear infinite;
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 9999;
-      display: none;
-    }
-    @keyframes spin {
-      0% { transform: translate(-50%, -50%) rotate(0deg); }
-      100% { transform: translate(-50%, -50%) rotate(360deg); }
+      min-height: 400px; /* iframe 로딩 전에도 컨테이너 크기를 유지 */
     }
 
     .container {
@@ -141,7 +123,6 @@
     </div>
 
     <div class="dataFrame-container" id="dataFrameContainer">
-      <div class="loader" id="loader"></div>
       <iframe id="dataFrame"></iframe>
     </div>
   </div>
@@ -150,7 +131,6 @@
     // ✅ iframe 요소 및 버튼들 선택
     const dataFrame = document.getElementById('dataFrame');
     const buttons = document.querySelectorAll('.toggle-button');
-    const loader = document.getElementById('loader');
 
     // ✅ 버튼 ID에 따라 불러올 페이지 URL 정의 https://soslyk.github.io/imweb/
     const dataUrls = {
@@ -162,18 +142,9 @@
       button6: "https://soslyk.github.io/imweb/Noshow"
     };
 
-    // ✅ iframe에 URL을 업데이트하고 로딩 스피너를 제어하는 함수
+    // ✅ iframe에 URL을 업데이트하는 함수
     function updateFrame(url) {
-      // 스피너 보이기 + iframe 투명하게
-      loader.style.display = 'block';
-      dataFrame.style.opacity = 0;
-
       dataFrame.src = url;
-      // 로딩 완료 시 스피너 숨기고 iframe 보이기
-      dataFrame.onload = () => {
-        loader.style.display = 'none';
-        dataFrame.style.opacity = 1;
-      };
     }
 
     // ✅ 버튼 클릭 이벤트 설정
